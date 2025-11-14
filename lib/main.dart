@@ -1,6 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,12 +11,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+      create: (context) => CounterAppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'Contador App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
         home: MyHomePage(),
       ),
@@ -27,34 +24,32 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  var history = <WordPair>[];
+class CounterAppState extends ChangeNotifier {
+  int counter = 0;
+  List<int> history = [];
 
-  GlobalKey? historyListKey;
-
-  void getNext() {
-    history.insert(0, current);
-    var animatedList = historyListKey?.currentState as AnimatedListState?;
-    animatedList?.insertItem(0);
-    current = WordPair.random();
+  void increment() {
+    counter++;
+    history.insert(0, counter);
     notifyListeners();
   }
 
-  var favorites = <WordPair>[];
-
-  void toggleFavorite([WordPair? pair]) {
-    pair = pair ?? current;
-    if (favorites.contains(pair)) {
-      favorites.remove(pair);
-    } else {
-      favorites.add(pair);
+  void decrement() {
+    if (counter > 0) {
+      counter--;
+      history.insert(0, counter);
+      notifyListeners();
     }
+  }
+
+  void reset() {
+    counter = 0;
+    history.insert(0, counter);
     notifyListeners();
   }
 
-  void removeFavorite(WordPair pair) {
-    favorites.remove(pair);
+  void clearHistory() {
+    history.clear();
     notifyListeners();
   }
 }
@@ -74,17 +69,15 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = CounterPage();
         break;
       case 1:
-        page = FavoritesPage();
+        page = HistoryPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-    // The container for the current page, with its background color
-    // and subtle switching animation.
     var mainArea = ColoredBox(
       color: colorScheme.surfaceVariant,
       child: AnimatedSwitcher(
@@ -97,8 +90,6 @@ class _MyHomePageState extends State<MyHomePage> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 450) {
-            // Use a more mobile-friendly layout with BottomNavigationBar
-            // on narrow screens.
             return Column(
               children: [
                 Expanded(child: mainArea),
@@ -106,12 +97,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: BottomNavigationBar(
                     items: [
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.home),
-                        label: 'Home',
+                        icon: Icon(Icons.calculate),
+                        label: 'Contador',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.favorite),
-                        label: 'Favorites',
+                        icon: Icon(Icons.history),
+                        label: 'Histórico',
                       ),
                     ],
                     currentIndex: selectedIndex,
@@ -132,12 +123,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     extended: constraints.maxWidth >= 600,
                     destinations: [
                       NavigationRailDestination(
-                        icon: Icon(Icons.home),
-                        label: Text('Home'),
+                        icon: Icon(Icons.calculate),
+                        label: Text('Contador'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.favorite),
-                        label: Text('Favorites'),
+                        icon: Icon(Icons.history),
+                        label: Text('Histórico'),
                       ),
                     ],
                     selectedIndex: selectedIndex,
@@ -158,92 +149,95 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class CounterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
+    var appState = context.watch<CounterAppState>();
+    var theme = Theme.of(context);
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            flex: 3,
-            child: HistoryListView(),
+          Spacer(flex: 2),
+          Text(
+            'Contador',
+            style: theme.textTheme.headlineSmall,
           ),
-          SizedBox(height: 10),
-          BigCard(pair: pair),
-          SizedBox(height: 10),
+          SizedBox(height: 30),
+          BigCounterCard(counter: appState.counter),
+          SizedBox(height: 30),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  appState.toggleFavorite();
+                  appState.decrement();
                 },
-                icon: Icon(icon),
-                label: Text('Like'),
+                icon: Icon(Icons.remove),
+                label: Text('Decrementar'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                ),
               ),
-              SizedBox(width: 10),
-              ElevatedButton(
+              SizedBox(width: 15),
+              ElevatedButton.icon(
                 onPressed: () {
-                  appState.getNext();
+                  appState.increment();
                 },
-                child: Text('Next'),
+                icon: Icon(Icons.add),
+                label: Text('Incrementar'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                ),
               ),
             ],
           ),
-          Spacer(flex: 2),
+          SizedBox(height: 15),
+          ElevatedButton.icon(
+            onPressed: () {
+              appState.reset();
+            },
+            icon: Icon(Icons.refresh),
+            label: Text('Zerar'),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              backgroundColor: theme.colorScheme.secondaryContainer,
+            ),
+          ),
+          Spacer(flex: 3),
         ],
       ),
     );
   }
 }
 
-class BigCard extends StatelessWidget {
-  const BigCard({
+class BigCounterCard extends StatelessWidget {
+  const BigCounterCard({
     Key? key,
-    required this.pair,
+    required this.counter,
   }) : super(key: key);
 
-  final WordPair pair;
+  final int counter;
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var style = theme.textTheme.displayMedium!.copyWith(
+    var style = theme.textTheme.displayLarge!.copyWith(
       color: theme.colorScheme.onPrimary,
+      fontWeight: FontWeight.bold,
     );
 
     return Card(
       color: theme.colorScheme.primary,
+      elevation: 8,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(40),
         child: AnimatedSize(
           duration: Duration(milliseconds: 200),
-          // Make sure that the compound word wraps correctly when the window
-          // is too narrow.
-          child: MergeSemantics(
-            child: Wrap(
-              children: [
-                Text(
-                  pair.first,
-                  style: style.copyWith(fontWeight: FontWeight.w200),
-                ),
-                Text(
-                  pair.second,
-                  style: style.copyWith(fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
+          child: Text(
+            '$counter',
+            style: style,
           ),
         ),
       ),
@@ -251,15 +245,18 @@ class BigCard extends StatelessWidget {
   }
 }
 
-class FavoritesPage extends StatelessWidget {
+class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var appState = context.watch<MyAppState>();
+    var appState = context.watch<CounterAppState>();
 
-    if (appState.favorites.isEmpty) {
+    if (appState.history.isEmpty) {
       return Center(
-        child: Text('No favorites yet.'),
+        child: Text(
+          'Nenhum histórico ainda.',
+          style: theme.textTheme.titleLarge,
+        ),
       );
     }
 
@@ -268,97 +265,59 @@ class FavoritesPage extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(30),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        Expanded(
-          // Make better use of wide windows with a grid.
-          child: GridView(
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 400,
-              childAspectRatio: 400 / 80,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              for (var pair in appState.favorites)
-                ListTile(
-                  leading: IconButton(
-                    icon: Icon(Icons.delete_outline, semanticLabel: 'Delete'),
-                    color: theme.colorScheme.primary,
-                    onPressed: () {
-                      appState.removeFavorite(pair);
-                    },
-                  ),
-                  title: Text(
-                    pair.asLowerCase,
-                    semanticsLabel: pair.asPascalCase,
-                  ),
+              Text(
+                'Histórico (${appState.history.length} registros)',
+                style: theme.textTheme.titleLarge,
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  appState.clearHistory();
+                },
+                icon: Icon(Icons.delete_outline),
+                label: Text('Limpar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.errorContainer,
                 ),
+              ),
             ],
           ),
         ),
-      ],
-    );
-  }
-}
-
-class HistoryListView extends StatefulWidget {
-  const HistoryListView({Key? key}) : super(key: key);
-
-  @override
-  State<HistoryListView> createState() => _HistoryListViewState();
-}
-
-class _HistoryListViewState extends State<HistoryListView> {
-  /// Needed so that [MyAppState] can tell [AnimatedList] below to animate
-  /// new items.
-  final _key = GlobalKey();
-
-  /// Used to "fade out" the history items at the top, to suggest continuation.
-  static const Gradient _maskingGradient = LinearGradient(
-    // This gradient goes from fully transparent to fully opaque black...
-    colors: [Colors.transparent, Colors.black],
-    // ... from the top (transparent) to half (0.5) of the way to the bottom.
-    stops: [0.0, 0.5],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final appState = context.watch<MyAppState>();
-    appState.historyListKey = _key;
-
-    return ShaderMask(
-      shaderCallback: (bounds) => _maskingGradient.createShader(bounds),
-      // This blend mode takes the opacity of the shader (i.e. our gradient)
-      // and applies it to the destination (i.e. our animated list).
-      blendMode: BlendMode.dstIn,
-      child: AnimatedList(
-        key: _key,
-        reverse: true,
-        padding: EdgeInsets.only(top: 100),
-        initialItemCount: appState.history.length,
-        itemBuilder: (context, index, animation) {
-          final pair = appState.history[index];
-          return SizeTransition(
-            sizeFactor: animation,
-            child: Center(
-              child: TextButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite(pair);
-                },
-                icon: appState.favorites.contains(pair)
-                    ? Icon(Icons.favorite, size: 12)
-                    : SizedBox(),
-                label: Text(
-                  pair.asLowerCase,
-                  semanticsLabel: pair.asPascalCase,
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            itemCount: appState.history.length,
+            itemBuilder: (context, index) {
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    'Valor: ${appState.history[index]}',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
