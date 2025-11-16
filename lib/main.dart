@@ -18,7 +18,8 @@ class MyApp extends StatelessWidget {
         title: 'Contador App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 11, 113, 131)),
         ),
         home: const HomePage(),
       ),
