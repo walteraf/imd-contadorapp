@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_unid2/pages/cadastrar_receita_page.dart';
-import 'package:flutter_application_unid2/pages/lista_receitas_page.dart';
 import 'counter_page.dart';
 import 'history_page.dart';
 
@@ -27,12 +25,6 @@ class _HomePageState extends State<HomePage> {
       case 1:
         page = HistoryPage();
         break;
-      case 2:
-        page = CadastrarReceitaPage();
-        break;
-      case 3:
-        page = ListaReceitasPage();   // ⭐ NOVA PÁGINA: LISTA DE RECEITAS
-        break;
       default:
         throw UnimplementedError("Página não existe");
     }
@@ -48,7 +40,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // Layout celular
+          // Layout para celular
           if (constraints.maxWidth < 450) {
             return Column(
               children: [
@@ -68,14 +60,6 @@ class _HomePageState extends State<HomePage> {
                         icon: Icon(Icons.history),
                         label: 'Histórico',
                       ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.edit_note),
-                        label: 'Cadastrar',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.list_alt),  // ⭐ ÍCONE DA LISTA
-                        label: 'Receitas',
-                      ),
                     ],
                   ),
                 ),
@@ -83,7 +67,7 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
-          // Layout tablet/desktop
+          // Layout para tablet/desktop
           return Row(
             children: [
               SafeArea(
@@ -101,14 +85,6 @@ class _HomePageState extends State<HomePage> {
                     NavigationRailDestination(
                       icon: Icon(Icons.history),
                       label: Text('Histórico'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.edit_note),
-                      label: Text('Cadastrar'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.list_alt), // ⭐ LISTA
-                      label: Text('Receitas'),
                     ),
                   ],
                 ),

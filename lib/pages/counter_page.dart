@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/counter_app_state.dart';
+import '../widgets/big_counter_card.dart';
 
 class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
@@ -8,91 +9,85 @@ class CounterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<CounterAppState>();
-    final passoAtual = appState.passoAtual;
+    final theme = Theme.of(context);
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Spacer(),
+          const Spacer(flex: 2),
+          Text(
+            'Contador',
+            style: theme.textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 30),
+          BigCounterCard(counter: appState.counter),
+          const SizedBox(height: 30),
+          LayoutBuilder(builder: (context, constraints) {
+            bool isSmall = constraints.maxWidth < 600;
 
-          if (passoAtual != null)
-            Column(
+            return Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Título da receita
-                Text(
-                  appState.currentRecipeTitle,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Passo atual
-                Text(
-                  "Passo atual:",
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  passoAtual.descricao,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Repetição ${appState.repeticoesFeitasNoPasso} / ${passoAtual.repeticoes}",
-                  style: const TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 20),
-
-                // Botões Voltar / Avançar
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: (appState.repeticoesFeitasNoPasso > 0 ||
-                              appState.currentStepIndex > 0)
-                          ? appState.voltarRepeticao
-                          : null,
-                      icon: const Icon(Icons.navigate_before),
-                      label: const Text("Voltar"),
-                    ),
-                    const SizedBox(width: 20),
-                    ElevatedButton.icon(
-                      onPressed: (appState.currentStepIndex < appState.passos.length - 1 ||
-                              appState.repeticoesFeitasNoPasso < passoAtual.repeticoes)
-                          ? appState.avancarRepeticao
-                          : null,
-                      icon: const Icon(Icons.navigate_next),
-                      label: const Text("Avançar"),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Conclusão da receita
-                if (appState.currentStepIndex == appState.passos.length - 1 &&
-                    appState.repeticoesFeitasNoPasso == passoAtual.repeticoes)
-                  const Text(
-                    "Receita concluída! 🎉",
-                    style: TextStyle(fontSize: 20, color: Colors.green),
+                ElevatedButton(
+                  onPressed: appState.subtractTwo,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.remove),
+                      SizedBox(width: 8),
+                      Text('2'),
+                    ],
                   ),
+                ),
+                const SizedBox(width: 10),
+                isSmall
+                    ? ElevatedButton(
+                        // Tela pequena
+                        onPressed: appState.decrement,
+                        child: const Icon(Icons.remove),
+                      )
+                    : ElevatedButton.icon(
+                        // Tela média a grande
+                        onPressed: appState.decrement,
+                        icon: const Icon(Icons.remove),
+                        label: const Text('Decrementar'),
+                      ),
+                const SizedBox(width: 15),
+                isSmall
+                    ? ElevatedButton(
+                        // Tela pequena
+                        onPressed: appState.increment,
+                        child: const Icon(Icons.add),
+                      )
+                    : ElevatedButton.icon(
+                        // Tela média a grande
+                        onPressed: appState.increment,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Incrementar'),
+                      ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: appState.addTwo,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add),
+                      SizedBox(width: 8),
+                      Text('2'),
+                    ],
+                  ),
+                ),
               ],
-            )
-          else
-            const Text(
-              "Nenhuma receita carregada",
-              style: TextStyle(fontSize: 22),
-            ),
-
-          const Spacer(),
-
+            );
+          }),
+          const SizedBox(height: 50),
           ElevatedButton.icon(
             onPressed: appState.reset,
             icon: const Icon(Icons.refresh),
-            label: const Text("Zerar receita"),
+            label: const Text('Zerar'),
           ),
-
-          const Spacer(),
+          const Spacer(flex: 3),
         ],
       ),
     );
