@@ -10,6 +10,7 @@ class BigCounterCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
+      shape: CircleBorder(),
       color: theme.colorScheme.primary,
       elevation: 8,
       child: Padding(
