@@ -18,6 +18,23 @@ class CounterAppState extends ChangeNotifier {
     }
   }
 
+  void addTwo() {
+    counter += 2;
+    history.insert(0, counter);
+    notifyListeners();
+  }
+
+  void subtractTwo() {
+    if (counter > 0) {
+      counter -= 2;
+      if (counter < 0) {
+        counter = 0; //Para não ficar com o cotnador negativo
+      }
+      history.insert(0, counter);
+      notifyListeners();
+    }
+  }
+
   void reset() {
     counter = 0;
     history.insert(0, counter);
