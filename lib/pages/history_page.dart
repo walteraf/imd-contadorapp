@@ -28,7 +28,7 @@ class HistoryPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Histórico (${appState.history.length} registros)',
+                'Histórico:',
                 style: theme.textTheme.titleLarge,
               ),
               ElevatedButton.icon(
