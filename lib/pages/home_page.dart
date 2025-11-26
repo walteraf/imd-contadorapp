@@ -59,6 +59,9 @@ class _HomePageState extends State<HomePage> {
                     onTap: (value) {
                       setState(() => selectedIndex = value);
                     },
+                    backgroundColor: colorScheme.surface,
+                    selectedItemColor: colorScheme.primary,
+                    unselectedItemColor: colorScheme.onSurfaceVariant,
                     items: const [
                       BottomNavigationBarItem(
                         icon: Icon(Icons.calculate),
@@ -93,6 +96,14 @@ class _HomePageState extends State<HomePage> {
                   onDestinationSelected: (value) {
                     setState(() => selectedIndex = value);
                   },
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  selectedLabelTextStyle: TextStyle(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  unselectedLabelTextStyle: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   destinations: const [
                     NavigationRailDestination(
                       icon: Icon(Icons.calculate),
